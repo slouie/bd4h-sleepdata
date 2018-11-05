@@ -12,6 +12,7 @@ Proposal: https://docs.google.com/document/d/1lojRzTHTZVBpYQdOLJnpGNFtkVIb-YAWkt
 conda env create -f environment.yml
 source activate bd4hproj
 python sleep_scoring
+python -m unittest discover
 ```
 
 ## Draft due 11/11

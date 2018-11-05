@@ -2,7 +2,6 @@ import numpy as np
 import os
 import re
 import pyedflib
-from urllib.parse import urljoin
 from urllib.request import urlretrieve, urlopen
 
 
@@ -81,7 +80,6 @@ class PhysiobankEDFLoader(object):
 
         for channel in range(reader.signals_in_file):
             print("signal parameters for the %d.channel:\n" % channel)
-
             print("label: %s" % reader.getLabel(channel))
             print("samples in file: %i" % reader.getNSamples()[channel])
             print("physical maximum: %f" % reader.getPhysicalMaximum(channel))
