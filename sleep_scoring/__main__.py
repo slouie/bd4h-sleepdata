@@ -1,4 +1,7 @@
-from features import edf_loader
+from features.edf_loader import PhysiobankEDFLoader
 
 if __name__ == "__main__":
-    edf_loader.load_edf_test()
+    loader = PhysiobankEDFLoader()
+    records = loader.load_sc_records(save=True)
+    loader.print_record(records[0][0])
+    loader.print_record(records[0][1])

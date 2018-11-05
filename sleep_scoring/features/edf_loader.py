@@ -1,17 +1,63 @@
-import os
 import numpy as np
+import os
+import re
 import pyedflib
-from urllib.request import urlretrieve
+from urllib.parse import urljoin
+from urllib.request import urlretrieve, urlopen
 
 
-def load_edf_test():
-    for record in ['ST7011J0-PSG', 'ST7011JP-Hypnogram']:
-        url = "https://physionet.org/physiobank/database/sleep-edfx/sleep-telemetry/%s.edf" % record
-        filename = "./data/%s.edf" % record
-        urlretrieve(url, filename)
-        reader = pyedflib.EdfReader(filename)
+class PhysiobankEDFLoader(object):
+    def __init__(self):
+        self.url = 'https://physionet.org/physiobank/database/sleep-edfx/'
+    
+    @property
+    def psg_record_paths(self):
+        if not os.path.exists('./data/RECORDS'):
+            urlretrieve(os.path.join(self.url, 'RECORDS'), './data/RECORDS')
+        with open('data/RECORDS') as f:
+            records = f.readlines()
+        records = [record.strip() for record in records]
+        return records
 
-        print("\n======= %s =======\n" % record)
+    def load_sc_records(self, save=False):
+        '''
+        Use RECORDS file to load all the sleep-cassette PSGs. Because that file doesn't
+        contain the hypnogram file names I have to parse the index html to look it up >_>
+        Set save flag to download all the files, it takes a while.
+
+        return: path to edf, eg. data/sleep-cassette/SC4001E0-PSG.edf
+        '''
+        records = []
+        html = urlopen(os.path.join(self.url, 'sleep-cassette')).read().decode('utf-8')
+        psg_paths = [path for path in self.psg_record_paths if 'sleep-cassette' in path]
+
+        if not os.path.exists('./data/sleep-cassette/'):
+            os.mkdir('./data/sleep-cassette/')
+            
+        for psg_path in psg_paths:
+            # PSG
+            local_psg_path = os.path.join('data/', psg_path)
+            if not os.path.exists(local_psg_path) and save:
+                edf_url = os.path.join(self.url, psg_path)
+                urlretrieve(edf_url, local_psg_path)
+
+            # Hypnogram
+            pattern = os.path.split(psg_path)[1].replace('0-PSG', '.-Hypnogram')
+            hyp_filename = re.search(re.compile(pattern), html).group(0)
+            if not hyp_filename:
+                raise Exception('Cannot find hypnogram file for %s' % psg_path)
+            local_hyp_path = os.path.join('data/sleep-cassette', hyp_filename)
+            if not os.path.exists(local_hyp_path) and save:
+                edf_url = os.path.join(self.url, 'sleep-cassette', hyp_filename)
+                urlretrieve(edf_url, local_hyp_path)
+            
+            records.append((local_psg_path, local_hyp_path))
+        return records
+
+    def print_record(self, edf_path):
+        reader = pyedflib.EdfReader(edf_path)
+
+        print("\n======= %s =======\n" % edf_path)
         print("edfsignals: %i" % reader.signals_in_file)
         print("file duration: %i seconds" % reader.file_duration)
         print("startdate: %i-%i-%i" % (reader.getStartdatetime().day,reader.getStartdatetime().month,reader.getStartdatetime().year))
@@ -55,5 +101,3 @@ def load_edf_test():
                 result += ("%.1f, " % buf[i])
             print(result)
             print("\n")
-        
-        os.remove(filename)
