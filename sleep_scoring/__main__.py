@@ -4,12 +4,17 @@ from helper import spark_helper
 
 
 if __name__ == "__main__":
+    spark_session = spark_helper.start_spark()
+    sc = spark_session.sparkContext
+
     loader = PhysiobankEDFLoader()
     records = loader.load_sc_records(save=True)
+    loader.print_record(records[0][0])
+    # loader.print_record(records[0][1])
 
-    spark_session = spark_helper.start_spark()
-    rdd = load_rdd_from_edf(spark_session, records)
-    features = FeatureConstruction.construct(rdd)
-    print(features)
+    rdd = load_rdd_from_edf(sc, [records[0]])
+    features = FeatureConstruction.construct(sc, rdd)
+    print(len(features[0]))
+    
     
     
