@@ -5,6 +5,8 @@ https://physionet.org/physiobank/database/sleep-edfx/
 
 https://sleepdata.org/datasets
 
+https://www.edfplus.info/specs/edfplus.html
+
 Proposal: https://docs.google.com/document/d/1lojRzTHTZVBpYQdOLJnpGNFtkVIb-YAWktPaLCkSsmM/edit?usp=sharing
 
 (?) Physionet --> Load EDFs --> PySpark ETL --> Feature files --> PyTorch
