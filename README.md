@@ -10,6 +10,7 @@ Proposal: https://docs.google.com/document/d/1lojRzTHTZVBpYQdOLJnpGNFtkVIb-YAWkt
 (?) Physionet --> Load EDFs --> PySpark ETL --> Feature files --> PyTorch
 ```
 conda env create -f environment.yml
+export SPARK_HOME=/usr/local/conda3/envs/bd4hproj/lib/python3.6/site-packages/pyspark
 source activate bd4hproj
 python sleep_scoring
 python -m unittest discover

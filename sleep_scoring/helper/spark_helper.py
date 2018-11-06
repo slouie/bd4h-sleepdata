@@ -5,9 +5,7 @@ def start_spark():
     spark_builder = SparkSession.builder.master('local[*]').appName('bd4h-sleepdata')
     config = {
         'spark.executor.memory'         : '8G',
-        'spark.driver.memory'           : '2G',
-        'spark.serializer'              : 'org.apache.spark.serializer.KyroSerializer',
-        'spark.kyroserializer.buffer'   : '24'
+        'spark.driver.memory'           : '2G'
     }
     for k, v in config.items():
         spark_builder.config(k, v)

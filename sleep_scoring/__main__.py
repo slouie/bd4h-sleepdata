@@ -10,6 +10,6 @@ if __name__ == "__main__":
     spark_session = spark_helper.start_spark()
     rdd = load_rdd_from_edf(spark_session, records)
     features = FeatureConstruction.construct(rdd)
-    print(len(features))
+    print(features)
     
     

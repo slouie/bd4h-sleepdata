@@ -9,7 +9,6 @@ dependencies:
   - pandas
   - matplotlib
   - pip:
-    - git+https://github.com/MIT-LCP/wfdb-python.git#egg=wfdb
     - pyspark==2.3.1
     - pyEDFlib
 prefix: /anaconda3/envs/bd4hproj
