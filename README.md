@@ -9,6 +9,8 @@ https://www.edfplus.info/specs/edfplus.html
 
 Proposal: https://docs.google.com/document/d/1lojRzTHTZVBpYQdOLJnpGNFtkVIb-YAWktPaLCkSsmM/edit?usp=sharing
 
+Data: https://docs.google.com/spreadsheets/d/1XhTddfplWuJ1UFNwM6jgS0baN-oSG2-70gTLDw0OkVk/edit?usp=sharing
+
 (?) Physionet --> Load EDFs --> PySpark ETL --> Feature files --> PyTorch
 ```
 conda env create -f environment.yml
