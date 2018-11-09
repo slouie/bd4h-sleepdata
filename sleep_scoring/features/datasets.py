@@ -63,7 +63,6 @@ class EpochDataset(Dataset):
         self.class_map = class_map
         
     def __getitem__(self, epoch_idx):
-        #start = time.time()
         # find feature file for this particular epoch
         file_idx = bisect.bisect_right(self.key_list, epoch_idx) - 1
         if file_idx not in self.cache:
@@ -76,8 +75,8 @@ class EpochDataset(Dataset):
         rel_idx = epoch_idx - self.epoch_ranges[file_idx][0]
         data = data[1:, rel_idx*EPOCH_LENGTH*100:(rel_idx+1)*EPOCH_LENGTH*100]
 
-        # TODO: can try collapsing into 1d signal
-        # data = np.expand_dims(np.concatenate(data[:]), axis=0)
+        # collapse into 1d signal like in tsinalis paper
+        data = np.expand_dims(np.concatenate(data[:]), axis=0)
 
         target = self.class_map[labels[rel_idx]]
         return data.astype(np.float32), target
