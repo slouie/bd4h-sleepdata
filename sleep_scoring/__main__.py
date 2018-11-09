@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from features.datasets import EpochDataset, RecordSampler
 from features.edf_loader import PhysiobankEDFLoader
-from features.etl_edf import EDFEpochDataset
+from features.etl_edf import extract_features
 from helper import spark_helper
 from helper.utils import train
 from model.cnn import CNN
@@ -13,6 +14,7 @@ MODEL_TYPE = 'CNN'
 BATCH_SIZE = 32
 NUM_WORKERS = 0
 
+
 if __name__ == "__main__":
     #spark_session = spark_helper.start_spark()
     #sc = spark_session.sparkContext
@@ -20,6 +22,10 @@ if __name__ == "__main__":
     # Load data
     loader = PhysiobankEDFLoader()
     records = loader.load_sc_records(save=True)
+    #loader.print_record('data/sleep-cassette/SC4001E0-PSG.edf')
+    #loader.print_record('data/sleep-cassette/SC4001EC-Hypnogram.edf')
+
+    feature_paths = extract_features(records)
 
     if MODEL_TYPE == 'CNN':
         model = CNN()
@@ -32,11 +38,14 @@ if __name__ == "__main__":
 
     # Create train/valid/test sets
     # TODO: no shuffling at the moment
-    train_dataset = EDFEpochDataset(records)
-    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
+    print("Creating dataset ...")
+    train_dataset = EpochDataset(feature_paths[0:2])
+    print(train_dataset.epoch_ranges)
+    sampler = RecordSampler(train_dataset)
+    train_loader = DataLoader(train_dataset, sampler=sampler, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
     
-    # Train
+    # # Train
     print("Training (model={}, workers={}, batch_size={})".format(MODEL_TYPE, NUM_WORKERS, BATCH_SIZE))
-    train_loss, train_accuracy = train(model, device, train_loader, criterion, optimizer, 0, print_freq=10)
+    train_loss, train_accuracy = train(model, device, train_loader, criterion, optimizer, 0, print_freq=1)
     
     

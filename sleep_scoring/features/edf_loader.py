@@ -6,6 +6,7 @@ from urllib.request import urlretrieve, urlopen
 
 
 class PhysiobankEDFLoader(object):
+    
     def __init__(self):
         self.url = 'https://physionet.org/physiobank/database/sleep-edfx/'
     
@@ -26,6 +27,7 @@ class PhysiobankEDFLoader(object):
 
         return: path to edf, eg. data/sleep-cassette/SC4001E0-PSG.edf
         '''
+        print("Loading records ...")
         records = []
         html = urlopen(os.path.join(self.url, 'sleep-cassette')).read().decode('utf-8')
         psg_paths = [path for path in self.psg_record_paths if 'sleep-cassette' in path]
