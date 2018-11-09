@@ -9,9 +9,16 @@ class CNN(nn.Module):
 	
 	def __init__(self):
 		super(CNN, self).__init__()
-		self.conv1 = nn.Conv1d(in_channels=6, out_channels=12, kernel_size=5)
+		# TODO: test collapsed 1d signal
+		# self.conv1 = nn.Conv1d(in_channels=1, out_channels=6, kernel_size=5)
+		# self.pool = nn.MaxPool1d(kernel_size=2, stride=2)
+		# self.conv2 = nn.Conv1d(6, 16, 5)
+		# self.fc1 = nn.Linear(in_features=16 * 4497, out_features=64)
+		# self.fc2 = nn.Linear(64, 6)
+
+		self.conv1 = nn.Conv1d(in_channels=6, out_channels=6, kernel_size=5)
 		self.pool = nn.MaxPool1d(kernel_size=2, stride=2)
-		self.conv2 = nn.Conv1d(12, 16, 5)
+		self.conv2 = nn.Conv1d(6, 16, 5)
 		self.fc1 = nn.Linear(in_features=16 * 747, out_features=64)
 		self.fc2 = nn.Linear(64, 6)
 

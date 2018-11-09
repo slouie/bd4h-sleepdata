@@ -1,6 +1,8 @@
 import bisect
 import numpy as np
 import torch
+import time
+from features.etl_edf import EPOCH_LENGTH
 from operator import itemgetter
 from torch.utils.data import TensorDataset, Dataset
 from torch.utils.data.sampler import Sampler
@@ -46,7 +48,7 @@ class EpochDataset(Dataset):
     spectograms which is an interesting approach.
     '''
 
-    def __init__(self, feature_paths):
+    def __init__(self, feature_paths, class_map):
         self.files = feature_paths
         self.cache = {}
         self.epoch_ranges = []
@@ -58,16 +60,10 @@ class EpochDataset(Dataset):
             self.epoch_ranges.append((onset, onset + num_epochs))
             onset += num_epochs
         self.key_list = EpochRangeKeyList(self.epoch_ranges, key=lambda x: x[0])
-        self.class_map = {
-            'Sleep stage W' : 0,
-            'Sleep stage 1' : 1,
-            'Sleep stage 2' : 2,
-            'Sleep stage 3' : 3,
-            'Sleep stage 4' : 4,
-            'Sleep stage R' : 5,
-        }
+        self.class_map = class_map
         
     def __getitem__(self, epoch_idx):
+        #start = time.time()
         # find feature file for this particular epoch
         file_idx = bisect.bisect_right(self.key_list, epoch_idx) - 1
         if file_idx not in self.cache:
@@ -75,9 +71,14 @@ class EpochDataset(Dataset):
             f = np.load(self.files[file_idx])
             self.cache = {file_idx : (f['data'], f['labels'])}
         data, labels = self.cache[file_idx]
+
         # subtract onset to get epoch idx within this file
         rel_idx = epoch_idx - self.epoch_ranges[file_idx][0]
-        data = data[1:, data[0, :] == rel_idx]
+        data = data[1:, rel_idx*EPOCH_LENGTH*100:(rel_idx+1)*EPOCH_LENGTH*100]
+
+        # TODO: can try collapsing into 1d signal
+        # data = np.expand_dims(np.concatenate(data[:]), axis=0)
+
         target = self.class_map[labels[rel_idx]]
         return data.astype(np.float32), target
 

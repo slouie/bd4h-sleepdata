@@ -1,3 +1,5 @@
+from datetime import datetime
+from pytz import timezone
 import time
 import numpy as np
 import torch
@@ -69,11 +71,12 @@ def train(model, device, data_loader, criterion, optimizer, epoch, print_freq=10
 		accuracy.update(compute_batch_accuracy(output, target).item(), target.size(0))
 
 		if i % print_freq == 0:
-			print('Epoch: [{0}][{1}/{2}]\t'
+			print('{0}  Epoch: [{1}][{2}/{3}]\t'
 				  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
 				  'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
 				  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
 				  'Accuracy {acc.val:.3f} ({acc.avg:.3f})'.format(
+				datetime.now(timezone('EST')).strftime('%Y-%m-%d %H:%M:%S'),
 				epoch, i, len(data_loader), batch_time=batch_time,
 				data_time=data_time, loss=losses, acc=accuracy))
 
