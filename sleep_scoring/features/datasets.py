@@ -41,31 +41,44 @@ class EpochRangeKeyList(object):
 class EpochDataset(Dataset):
     '''
     Epoch is (6 channel x 3000 sample) tensor. Randomly sampled from each feature file.
+    This might not be so good? Tsinalis paper uses 1D raw signal input (1x15000) but not sure how
+    it's constructed. Maybe just appended each channel to each other? Biswal paper creates
+    spectograms which is an interesting approach.
     '''
 
     def __init__(self, feature_paths):
         self.files = feature_paths
+        self.cache = {}
         self.epoch_ranges = []
+
         onset = 0
         for feature_file in self.files:
-            data = np.load(feature_file)['arr_0']
+            data = np.load(feature_file)['data']
             num_epochs = int(data[0][-1] + 1)
             self.epoch_ranges.append((onset, onset + num_epochs))
             onset += num_epochs
         self.key_list = EpochRangeKeyList(self.epoch_ranges, key=lambda x: x[0])
-        self.cache = {}
-
+        self.class_map = {
+            'Sleep stage W' : 0,
+            'Sleep stage 1' : 1,
+            'Sleep stage 2' : 2,
+            'Sleep stage 3' : 3,
+            'Sleep stage 4' : 4,
+            'Sleep stage R' : 5,
+        }
+        
     def __getitem__(self, epoch_idx):
         # find feature file for this particular epoch
         file_idx = bisect.bisect_right(self.key_list, epoch_idx) - 1
         if file_idx not in self.cache:
             # cache one file at a time
-            self.cache = {file_idx : np.load(self.files[file_idx])['arr_0']}
-        data = self.cache[file_idx]
+            f = np.load(self.files[file_idx])
+            self.cache = {file_idx : (f['data'], f['labels'])}
+        data, labels = self.cache[file_idx]
         # subtract onset to get epoch idx within this file
         rel_idx = epoch_idx - self.epoch_ranges[file_idx][0]
         data = data[1:, data[0, :] == rel_idx]
-        target = int(1)
+        target = self.class_map[labels[rel_idx]]
         return data.astype(np.float32), target
 
     def __len__(self):

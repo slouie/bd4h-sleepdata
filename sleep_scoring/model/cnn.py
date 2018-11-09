@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 # TODO: just took from hw5 to test for now
+# This model is absolute garbage but it shows results skewed towards sleep stage 2
+# like Tsinalis paper mentions, which is cool
 class CNN(nn.Module):
 	
 	def __init__(self):
@@ -10,8 +12,8 @@ class CNN(nn.Module):
 		self.conv1 = nn.Conv1d(in_channels=6, out_channels=12, kernel_size=5)
 		self.pool = nn.MaxPool1d(kernel_size=2, stride=2)
 		self.conv2 = nn.Conv1d(12, 16, 5)
-		self.fc1 = nn.Linear(in_features=16 * 747, out_features=128)
-		self.fc2 = nn.Linear(128, 5)
+		self.fc1 = nn.Linear(in_features=16 * 747, out_features=64)
+		self.fc2 = nn.Linear(64, 6)
 
 	def forward(self, x):
 		x = self.pool(F.relu(self.conv1(x)))
