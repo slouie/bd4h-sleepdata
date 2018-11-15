@@ -56,3 +56,8 @@ more that are relevant to the project.
 All  the  steps  in  project  execution  should  be  done  by  the
 paper  draft  due  date  and  iterate  at  least  another  time  by  the
 final due day.
+
+### Running
+- Set up conda environment using `conda env create -f environment.yml`
+- `source activate bd4hproj`
+- Run __main__.py
