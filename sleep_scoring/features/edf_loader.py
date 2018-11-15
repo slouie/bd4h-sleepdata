@@ -6,10 +6,10 @@ from urllib.request import urlretrieve, urlopen
 
 
 class PhysiobankEDFLoader(object):
-    
+
     def __init__(self):
         self.url = 'https://physionet.org/physiobank/database/sleep-edfx/'
-    
+
     @property
     def psg_record_paths(self):
         if not os.path.exists('./data/RECORDS'):
@@ -34,7 +34,7 @@ class PhysiobankEDFLoader(object):
 
         if not os.path.exists('./data/sleep-cassette/'):
             os.mkdir('./data/sleep-cassette/')
-            
+
         for psg_path in psg_paths:
             # PSG
             local_psg_path = os.path.join('data/', psg_path)
@@ -51,7 +51,7 @@ class PhysiobankEDFLoader(object):
             if not os.path.exists(local_hyp_path) and save:
                 edf_url = os.path.join(self.url, 'sleep-cassette', hyp_filename)
                 urlretrieve(edf_url, local_hyp_path)
-            
+
             records.append((local_psg_path, local_hyp_path))
         return records
 
