@@ -50,6 +50,9 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters())
+    
+    model.to(device)
+    criterion.to(device)
 
     # Create train/valid/test sets
     print("Creating dataset ...")
