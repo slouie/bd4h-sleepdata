@@ -58,8 +58,8 @@ if __name__ == "__main__":
     print("Creating dataset ...")
 
     # TODO: split train/valid better
-    train_dataset = EpochDataset(feature_paths[0:2], CLASS_MAP)
-    valid_dataset = EpochDataset(feature_paths[2:3], CLASS_MAP)
+    train_dataset = EpochDataset(feature_paths[0:130], CLASS_MAP)
+    valid_dataset = EpochDataset(feature_paths[130:], CLASS_MAP)
     train_sampler = RecordSampler(train_dataset)
     valid_sampler = RecordSampler(valid_dataset)
     train_loader = DataLoader(train_dataset, sampler=train_sampler, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
@@ -72,8 +72,8 @@ if __name__ == "__main__":
     train_losses, train_accuracies = [], []
     valid_losses, valid_accuracies = [], []
     for training_epoch in range(NUM_TRAINING_EPOCHS):
-        train_loss, train_accuracy = train(model, device, train_loader, criterion, optimizer, training_epoch, print_freq=1)
-        valid_loss, valid_accuracy, valid_results = evaluate(model, device, valid_loader, criterion, print_freq=1)
+        train_loss, train_accuracy = train(model, device, train_loader, criterion, optimizer, training_epoch, print_freq=100)
+        valid_loss, valid_accuracy, valid_results = evaluate(model, device, valid_loader, criterion, print_freq=100)
     
         train_losses.append(train_loss)
         valid_losses.append(valid_loss)
