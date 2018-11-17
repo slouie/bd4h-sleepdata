@@ -1,5 +1,7 @@
 # data
 *.edf
+*.npz
+*.pth
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
