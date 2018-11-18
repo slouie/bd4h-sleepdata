@@ -9,6 +9,7 @@ from helper import spark_helper
 from helper.plots import plot_learning_curves, plot_confusion_matrix
 from helper.utils import train, evaluate
 from model.cnn import CNN
+from model.rcnn import RCNN
 from torch.utils.data import DataLoader
 
 
@@ -44,6 +45,8 @@ if __name__ == "__main__":
 
     if MODEL_TYPE == 'CNN':
         model = CNN()
+    elif MODEL_TYPE = 'RCNN':
+        model = RCNN;
     else:
         raise AssertionError('Model type does not exist')
 
@@ -64,17 +67,17 @@ if __name__ == "__main__":
 
     # # Train
     print("Training (model={}, workers={}, batch_size={})".format(MODEL_TYPE, NUM_WORKERS, BATCH_SIZE))
-    
+
     best_val_acc = 0.0
     train_losses, train_accuracies = [], []
     valid_losses, valid_accuracies = [], []
     for training_epoch in range(NUM_TRAINING_EPOCHS):
         train_loss, train_accuracy = train(model, device, train_loader, criterion, optimizer, training_epoch, print_freq=1)
         valid_loss, valid_accuracy, valid_results = evaluate(model, device, valid_loader, criterion, print_freq=1)
-    
+
         train_losses.append(train_loss)
         valid_losses.append(valid_loss)
-    
+
         train_accuracies.append(train_accuracy)
         valid_accuracies.append(valid_accuracy)
 
