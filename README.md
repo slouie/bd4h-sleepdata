@@ -66,7 +66,7 @@ final due day.
 - Connect to GT VPN
 - Download private key from bpradhan's email
 - `ssh eclipse`
-- `srun -N 2 hostname
+- `srun -N 2 hostname`
 - `salloc "--gres=gpu:1"`
 - Run __main__.py
 
