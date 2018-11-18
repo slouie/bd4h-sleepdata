@@ -6,7 +6,7 @@ from features.datasets import EpochDataset, RecordSampler
 from features.edf_loader import PhysiobankEDFLoader
 from features.etl_edf import extract_features
 from helper import spark_helper
-from helper.plots import plot_learning_curves, plot_confusion_matrix
+from helper.plots import plot_learning_curves, plot_confusion_matrix, save_metrics
 from helper.utils import train, evaluate
 from model.cnn import SimpleCNN, TsinalisCNN
 from torch.utils.data import DataLoader
@@ -95,3 +95,6 @@ if __name__ == "__main__":
 
     class_names = ['W', '1', '2', '3', '4', 'R']
     plot_confusion_matrix(test_results, class_names, MODEL_TYPE)
+
+    y_true, y_pred = zip(*test_results)
+    save_metrics(MODEL_TYPE, y_pred, y_true)

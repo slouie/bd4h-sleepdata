@@ -2,10 +2,32 @@ import itertools
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import *
 
 
 PLOT_PATH = './output/'
+
+
+def classification_metrics(Y_pred, Y_true):
+	acc = accuracy_score(Y_true, Y_pred)
+	precision = precision_score(Y_true, Y_pred, average='weighted')
+	recall = recall_score(Y_true, Y_pred, average='weighted')
+	f1 = f1_score(Y_true, Y_pred, average='weighted')
+	return acc, precision, recall, f1
+
+
+def save_metrics(model_type, Y_pred, Y_true):
+	out_dir = os.path.join(PLOT_PATH, model_type)
+	if not os.path.exists(out_dir):
+		os.mkdir(out_dir)
+	with open(os.path.join(out_dir, 'metrics.txt'), 'w') as f:
+		f.write(("Model type: {}\n".format(model_type)))
+		acc, precision, recall, f1score = classification_metrics(Y_pred,Y_true)
+		f.write(("Accuracy: {}\n".format(str(acc))))
+		f.write(("Precision: {}\n".format(str(precision))))
+		f.write(("Recall: {}\n".format(str(recall))))
+		f.write(("F1-score: {}\n".format(str(f1score))))
+
 
 def plot_learning_curves(train_losses, valid_losses, train_accuracies, valid_accuracies, model_type):
 	plt.plot(np.arange(len(train_losses)), train_losses, label='Train')
@@ -58,3 +80,6 @@ def plot_confusion_matrix(results, class_names, model_type):
 		os.mkdir(out_dir)
 
 	plt.savefig(os.path.join(out_dir, 'confusion_matrix.png'))
+
+
+# precision/sensitivity/F1, cohen's kappa, recall
