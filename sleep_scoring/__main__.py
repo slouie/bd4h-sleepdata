@@ -16,7 +16,7 @@ from torch.utils.data import DataLoader
 PATH_OUTPUT = "./output/bestmodels/"
 os.makedirs(PATH_OUTPUT, exist_ok=True)
 
-NUM_TRAINING_EPOCHS = 5
+NUM_TRAINING_EPOCHS = 1
 MODEL_TYPE = 'SimpleCNN'
 BATCH_SIZE = 32
 NUM_WORKERS = 0
@@ -88,10 +88,10 @@ if __name__ == "__main__":
             best_val_acc = valid_accuracy
             torch.save(model, os.path.join(PATH_OUTPUT, '{}.pth'.format(MODEL_TYPE)))
 
-    plot_learning_curves(train_losses, valid_losses, train_accuracies, valid_accuracies)
+    plot_learning_curves(train_losses, valid_losses, train_accuracies, valid_accuracies, MODEL_TYPE)
 
     best_model = torch.load(os.path.join(PATH_OUTPUT, '{}.pth'.format(MODEL_TYPE)))
     test_loss, test_accuracy, test_results = evaluate(best_model, device, valid_loader, criterion)
 
     class_names = ['W', '1', '2', '3', '4', 'R']
-    plot_confusion_matrix(test_results, class_names)
+    plot_confusion_matrix(test_results, class_names, MODEL_TYPE)
