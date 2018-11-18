@@ -17,8 +17,8 @@ from torch.utils.data import DataLoader
 PATH_OUTPUT = "./output/bestmodels/"
 os.makedirs(PATH_OUTPUT, exist_ok=True)
 
-NUM_TRAINING_EPOCHS = 5
-MODEL_TYPE = 'CNN'
+NUM_TRAINING_EPOCHS = 1
+MODEL_TYPE = 'SimpleCNN'
 BATCH_SIZE = 32
 NUM_WORKERS = 0
 
@@ -43,10 +43,10 @@ if __name__ == "__main__":
 
     feature_paths = extract_features(records)
 
-    if MODEL_TYPE == 'CNN':
-        model = CNN()
-    elif MODEL_TYPE = 'RCNN':
-        model = RCNN;
+    if MODEL_TYPE == 'SimpleCNN':
+        model = SimpleCNN()
+    elif MODEL_TYPE == 'TsinalisCNN':
+        model = TsinalisCNN()
     else:
         raise AssertionError('Model type does not exist')
 
@@ -54,12 +54,15 @@ if __name__ == "__main__":
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters())
 
+    model.to(device)
+    criterion.to(device)
+
     # Create train/valid/test sets
     print("Creating dataset ...")
 
     # TODO: split train/valid better
-    train_dataset = EpochDataset(feature_paths[0:2], CLASS_MAP)
-    valid_dataset = EpochDataset(feature_paths[2:3], CLASS_MAP)
+    train_dataset = EpochDataset(feature_paths[0:130], CLASS_MAP)
+    valid_dataset = EpochDataset(feature_paths[130:], CLASS_MAP)
     train_sampler = RecordSampler(train_dataset)
     valid_sampler = RecordSampler(valid_dataset)
     train_loader = DataLoader(train_dataset, sampler=train_sampler, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
@@ -72,8 +75,8 @@ if __name__ == "__main__":
     train_losses, train_accuracies = [], []
     valid_losses, valid_accuracies = [], []
     for training_epoch in range(NUM_TRAINING_EPOCHS):
-        train_loss, train_accuracy = train(model, device, train_loader, criterion, optimizer, training_epoch, print_freq=1)
-        valid_loss, valid_accuracy, valid_results = evaluate(model, device, valid_loader, criterion, print_freq=1)
+        train_loss, train_accuracy = train(model, device, train_loader, criterion, optimizer, training_epoch, print_freq=100)
+        valid_loss, valid_accuracy, valid_results = evaluate(model, device, valid_loader, criterion, print_freq=100)
 
         train_losses.append(train_loss)
         valid_losses.append(valid_loss)
@@ -86,10 +89,10 @@ if __name__ == "__main__":
             best_val_acc = valid_accuracy
             torch.save(model, os.path.join(PATH_OUTPUT, '{}.pth'.format(MODEL_TYPE)))
 
-    plot_learning_curves(train_losses, valid_losses, train_accuracies, valid_accuracies)
+    plot_learning_curves(train_losses, valid_losses, train_accuracies, valid_accuracies, MODEL_TYPE)
 
     best_model = torch.load(os.path.join(PATH_OUTPUT, '{}.pth'.format(MODEL_TYPE)))
     test_loss, test_accuracy, test_results = evaluate(best_model, device, valid_loader, criterion)
 
     class_names = ['W', '1', '2', '3', '4', 'R']
-    plot_confusion_matrix(test_results, class_names)
+    plot_confusion_matrix(test_results, class_names, MODEL_TYPE)
