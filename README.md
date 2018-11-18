@@ -61,3 +61,15 @@ final due day.
 - Set up conda environment using `conda env create -f environment.yml`
 - `source activate bd4hproj`
 - Run __main__.py
+
+### Running on eclipse
+- Connect to GT VPN
+- Download private key from bpradhan's email
+- `ssh eclipse`
+- `srun -N 2 hostname`
+- `salloc "--gres=gpu:1"`
+- Run __main__.py
+
+
+
+
