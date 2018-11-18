@@ -7,7 +7,7 @@ from sklearn.metrics import confusion_matrix
 
 PLOT_PATH = './output/'
 
-def plot_learning_curves(train_losses, valid_losses, train_accuracies, valid_accuracies):
+def plot_learning_curves(train_losses, valid_losses, train_accuracies, valid_accuracies, model_type):
     plt.plot(np.arange(len(train_losses)), train_losses, label='Train')
     plt.plot(np.arange(len(valid_losses)), valid_losses, label='Validation')
     plt.ylabel('Loss')
@@ -21,10 +21,10 @@ def plot_learning_curves(train_losses, valid_losses, train_accuracies, valid_acc
     plt.ylabel('Accuracy')
     plt.xlabel('epoch')
     plt.legend(loc="best")
-    plt.savefig(os.path.join(PLOT_PATH, 'accuracy_curve.png'))
+    plt.savefig(os.path.join(PLOT_PATH, model_type, 'accuracy_curve.png'))
 
 
-def plot_confusion_matrix(results, class_names):
+def plot_confusion_matrix(results, class_names, model_type):
 	results = list(zip(*results))
 	cm = confusion_matrix(results[0], results[1])
 	cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
@@ -48,4 +48,4 @@ def plot_confusion_matrix(results, class_names):
 	plt.xlabel('Predicted label')
 	plt.tight_layout()
 
-	plt.savefig(os.path.join(PLOT_PATH, 'confusion_matrix.png'))
+	plt.savefig(os.path.join(PLOT_PATH, model_type, 'confusion_matrix.png'))

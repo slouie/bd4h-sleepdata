@@ -17,7 +17,7 @@ PATH_OUTPUT = "./output/bestmodels/"
 os.makedirs(PATH_OUTPUT, exist_ok=True)
 
 NUM_TRAINING_EPOCHS = 5
-MODEL_TYPE = 'CNN'
+MODEL_TYPE = 'SimpleCNN'
 BATCH_SIZE = 32
 NUM_WORKERS = 0
 
@@ -42,8 +42,10 @@ if __name__ == "__main__":
 
     feature_paths = extract_features(records)
 
-    if MODEL_TYPE == 'CNN':
+    if MODEL_TYPE == 'SimpleCNN':
         model = SimpleCNN()
+    elif MODEL_TYPE == 'TsinalisCNN':
+        model = TsinalisCNN()
     else:
         raise AssertionError('Model type does not exist')
 
