@@ -8,7 +8,7 @@ from features.etl_edf import extract_features
 from helper import spark_helper
 from helper.plots import plot_learning_curves, plot_confusion_matrix
 from helper.utils import train, evaluate
-from model.cnn import CNN
+from model.cnn import SimpleCNN, TsinalisCNN
 from torch.utils.data import DataLoader
 
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     feature_paths = extract_features(records)
 
     if MODEL_TYPE == 'CNN':
-        model = CNN()
+        model = SimpleCNN()
     else:
         raise AssertionError('Model type does not exist')
 
