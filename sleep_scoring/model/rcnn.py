@@ -35,7 +35,7 @@ class RCNN(nn.Module):
         x = self.fc2(x)
         # print(x.shape)
         # x = np.reshape(x, [32,32,1])
-        print(x.shape[0])
+        # print(x.shape[0])
         if(x.shape[0]==1024):
             x = x.view(32, 32, 1)
         else:
