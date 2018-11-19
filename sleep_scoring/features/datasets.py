@@ -94,11 +94,14 @@ class TimeOrderedDataset(Dataset):
         self.files = feature_paths
         self.cache = {}
         self.epoch_ranges = []
+        # self.feature_ranges = []
 
         onset = 0
+        num_feature = 0
         for feature_file in self.files:
             data = np.load(feature_file)['data']
             num_epochs = int(data[0][-1] + 1)
+            # self.feature_ranges.append((onset, onset + ))
             self.epoch_ranges.append((onset, onset + num_epochs))
             onset += num_epochs
         self.key_list = EpochRangeKeyList(self.epoch_ranges, key=lambda x: x[0])
@@ -116,9 +119,9 @@ class TimeOrderedDataset(Dataset):
         # subtract onset to get epoch idx within this file
         rel_idx = epoch_idx - self.epoch_ranges[file_idx][0]
         data = data[1:, rel_idx*EPOCH_LENGTH*100:(rel_idx+1)*EPOCH_LENGTH*100]
-
-        # collapse into 1d signal like in tsinalis paper
-        data = np.expand_dims(np.concatenate(data[:]), axis=0)
+        # Average six different arrays
+        data = np.average(data, axis=0)
+        data = np.reshape(data, (1,3000))
 
         target = self.class_map[labels[rel_idx]]
         return data.astype(np.float32), target
