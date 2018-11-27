@@ -46,6 +46,8 @@ def train(model, device, data_loader, criterion, optimizer, epoch, print_freq=10
 	end = time.time()
 	for i, (input, target) in enumerate(data_loader):
 		# measure data loading time
+		if(len(input)!=32):
+			break
 		data_time.update(time.time() - end)
 
 		if isinstance(input, tuple):
@@ -56,7 +58,7 @@ def train(model, device, data_loader, criterion, optimizer, epoch, print_freq=10
 
 		optimizer.zero_grad()
 		output = model(input)
-		
+
 		loss = criterion(output, target)
 		assert not np.isnan(loss.item()), 'Model diverged with loss = NaN'
 
@@ -95,6 +97,8 @@ def evaluate(model, device, data_loader, criterion, print_freq=10):
 	with torch.no_grad():
 		end = time.time()
 		for i, (input, target) in enumerate(data_loader):
+			if(len(input)!=32):
+				break
 
 			if isinstance(input, tuple):
 				input = tuple([e.to(device) if type(e) == torch.Tensor else e for e in input])

@@ -58,6 +58,8 @@ paper  draft  due  date  and  iterate  at  least  another  time  by  the
 final due day.
 
 ### Running
+- `docker start bigbox`
+- `docker attach bigbox`
 - Set up conda environment using `conda env create -f environment.yml`
 - `source activate bd4hproj`
 - Run __main__.py
