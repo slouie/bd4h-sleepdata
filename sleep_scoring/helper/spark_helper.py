@@ -5,7 +5,7 @@ def start_spark():
     spark_builder = SparkSession.builder.master('local[*]').appName('bd4h-sleepdata')
     config = {
         'spark.executor.memory'         : '8G',
-        'spark.driver.memory'           : '2G'
+        'spark.driver.memory'           : '8G',
     }
     for k, v in config.items():
         spark_builder.config(k, v)

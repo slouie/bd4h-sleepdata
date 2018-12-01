@@ -19,8 +19,7 @@ PATH_OUTPUT = "./output/bestmodels/"
 os.makedirs(PATH_OUTPUT, exist_ok=True)
 
 NUM_TRAINING_EPOCHS = 1
-MODEL_TYPE = 'RCNN'
-# MODEL_TYPE = 'SimpleCNN'
+MODEL_TYPE = 'SimpleCNN'
 BATCH_SIZE = 32
 NUM_WORKERS = 0
 
@@ -34,8 +33,8 @@ CLASS_MAP = {
 }
 
 if __name__ == "__main__":
-    #spark_session = spark_helper.start_spark()
-    #sc = spark_session.sparkContext
+    spark_session = spark_helper.start_spark()
+    sc = spark_session.sparkContext
 
     # Load data
     loader = PhysiobankEDFLoader()
@@ -43,7 +42,7 @@ if __name__ == "__main__":
     #loader.print_record('data/sleep-cassette/SC4362F0-PSG.edf')
     #loader.print_record('data/sleep-cassette/SC4362FC-Hypnogram.edf')
 
-    feature_paths = extract_features(records)
+    feature_paths = extract_features(sc, records[0:5])
 
     if MODEL_TYPE == 'SimpleCNN':
         model = SimpleCNN()

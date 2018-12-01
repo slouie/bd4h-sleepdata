@@ -11,9 +11,27 @@ EPOCH_LENGTH = 30
 class FeatureConstruction(object):
 
     @staticmethod
-    def construct(sc, rdd, model_type):
-        # TODO: use spark later
-        pass
+    def construct(sc, rdd, feature_filepath):
+        rdd = rdd.filter(lambda x: x.expert_annotation not in ['Sleep stage ?', 'Movement time']) \
+            .zipWithIndex()
+
+        data = []
+        labels = []
+        for epoch, idx in rdd.collect():
+            np_epoch = np.zeros((7, EPOCH_LENGTH * 100))
+            for channel, signal in epoch.channels.items():
+                # Stretch out the signal for the smaller frequencies to match dims
+                if epoch.sample_frequencies[channel] == 100:
+                    np_epoch[channel + 1] = signal
+                elif epoch.sample_frequencies[channel] == 1:
+                    np_epoch[channel + 1] = np.repeat(signal, 100, axis=0)
+                else:
+                    raise Exception('Unexpected sample frequency')
+            np_epoch[0] = idx
+            data.append(np_epoch)
+            labels.append(epoch.expert_annotation)
+        data = np.concatenate(data, axis=1)
+        np.savez_compressed(feature_filepath, data=data, labels=np.array(labels))
 
 
 def chunk(signal, sample_frequency):
@@ -22,7 +40,7 @@ def chunk(signal, sample_frequency):
         yield signal[i:i+num_samples]
 
 
-def extract_features(edf_paths):
+def extract_features(sc, edf_paths):
     print("Extracting features ...")
     feature_paths = [] 
     if not os.path.exists('./data/features/'):
@@ -53,26 +71,7 @@ def extract_features(edf_paths):
                         epochs.append(Epoch(epoch_id, annotations_by_epoch[epoch_id]))
                     epochs[epoch_id].add_channel(channel, epoch_signal, sample_frequency)
 
-            # Filter epochs and create feature files
-            data = []
-            labels = []
-            idx = 0
-            for epoch in epochs:
-                if epoch.expert_annotation not in ['Sleep stage ?', 'Movement time']:
-                    np_epoch = np.zeros((7, EPOCH_LENGTH * 100))
-                    for channel, signal in epoch.channels.items():
-                        # Stretch out the signal for the smaller frequencies to match dims
-                        if epoch.sample_frequencies[channel] == 100:
-                            np_epoch[channel + 1] = signal
-                        elif epoch.sample_frequencies[channel] == 1:
-                            np_epoch[channel + 1] = np.repeat(signal, 100, axis=0)
-                        else:
-                            raise Exception('Unexpected sample frequency')
-                    np_epoch[0] = idx
-                    idx += 1
-                    data.append(np_epoch)
-                    labels.append(epoch.expert_annotation)
-            data = np.concatenate(data, axis=1)
-            np.savez_compressed(feature_filepath, data=data, labels=np.array(labels))
+            rdd = sc.parallelize(epochs)
+            FeatureConstruction.construct(sc, rdd, feature_filepath)
     return feature_paths
         
