@@ -42,7 +42,7 @@ if __name__ == "__main__":
     #loader.print_record('data/sleep-cassette/SC4362F0-PSG.edf')
     #loader.print_record('data/sleep-cassette/SC4362FC-Hypnogram.edf')
 
-    feature_paths = extract_features(sc, records[0:5])
+    feature_paths = extract_features(sc, records)
 
     if MODEL_TYPE == 'SimpleCNN':
         model = SimpleCNN()
