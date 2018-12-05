@@ -45,7 +45,11 @@ class WeightedRecordSampler(Sampler):
         idxs_per_range = []
         for i, (start, end) in enumerate(self.dataset.epoch_ranges):
             idxs = torch.multinomial(self.weights[i], end - start, self.replacement).tolist()
+            idxs = [idx + start for idx in idxs]
             idxs_per_range.append(idxs)
+        print("epoch ranges", self.dataset.epoch_ranges[0:10])
+        for idx, i in enumerate(idxs_per_range[0:10]):
+            print(idx, min(i), max(i))
         return iter(np.concatenate(idxs_per_range))
 
     def __len__(self):
