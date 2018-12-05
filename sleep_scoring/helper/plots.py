@@ -55,7 +55,7 @@ def plot_confusion_matrix(results, class_names, model_type):
 	results = list(zip(*results))
 	cm = confusion_matrix(results[0], results[1])
 	cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-
+	print(cm)
 	plt.clf()
 	plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
 	plt.title('Normalized Confusion Matrix')
