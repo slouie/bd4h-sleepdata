@@ -37,9 +37,6 @@ class WeightedRecordSampler(Sampler):
             class_occur = np.array([len(np.where(stages == t)[0]) for t in np.arange(max(stages) + 1)])
             class_occur[class_occur == 0] = -1
             class_weights = 1. / class_occur
-
-            print(np.unique(stages), class_weights)
-
             samples_weights = np.array([class_weights[stage] for stage in stages])
             samples_weights = torch.from_numpy(samples_weights).double()
             self.weights.append(samples_weights)
