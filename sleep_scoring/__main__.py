@@ -18,8 +18,8 @@ from torch.utils.data import DataLoader
 PATH_OUTPUT = "./output/bestmodels/"
 os.makedirs(PATH_OUTPUT, exist_ok=True)
 
-NUM_TRAINING_EPOCHS = 4
-MODEL_TYPE = 'SimpleCNN'
+NUM_TRAINING_EPOCHS = 1
+MODEL_TYPE = 'RCNN'
 BATCH_SIZE = 32
 NUM_WORKERS = 0
 

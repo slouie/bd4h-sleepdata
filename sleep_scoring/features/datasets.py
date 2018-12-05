@@ -117,28 +117,14 @@ class EpochDataset(Dataset):
         return self.epoch_ranges[-1][1]
 
 
-class TimeOrderedDataset(Dataset):
+class TimeOrderedDataset(EpochDataset):
     '''
     Preserves time order of features and constructs a 2d matrix for CNN->RNN
     WIP
     '''
 
     def __init__(self, feature_paths, class_map):
-        self.files = feature_paths
-        self.cache = {}
-        self.epoch_ranges = []
-        # self.feature_ranges = []
-
-        onset = 0
-        num_feature = 0
-        for feature_file in self.files:
-            data = np.load(feature_file)['data']
-            num_epochs = int(data[0][-1] + 1)
-            # self.feature_ranges.append((onset, onset + ))
-            self.epoch_ranges.append((onset, onset + num_epochs))
-            onset += num_epochs
-        self.key_list = EpochRangeKeyList(self.epoch_ranges, key=lambda x: x[0])
-        self.class_map = class_map
+        super(TimeOrderedDataset, self).__init__(feature_paths, class_map)
 
     def __getitem__(self, epoch_idx):
         # find feature file for this particular epoch
@@ -146,8 +132,9 @@ class TimeOrderedDataset(Dataset):
         if file_idx not in self.cache:
             # cache one file at a time
             f = np.load(self.files[file_idx])
-            self.cache = {file_idx : (f['data'], f['labels'])}
-        data, labels = self.cache[file_idx]
+            self.cache = {file_idx : f['data']}
+        data = self.cache[file_idx]
+        labels = self.labels[file_idx]
 
         # subtract onset to get epoch idx within this file
         rel_idx = epoch_idx - self.epoch_ranges[file_idx][0]
@@ -156,7 +143,7 @@ class TimeOrderedDataset(Dataset):
         data = np.average(data, axis=0)
         data = np.reshape(data, (1,3000))
 
-        target = self.class_map[labels[rel_idx]]
+        target = labels[rel_idx]
         return data.astype(np.float32), target
 
     def __len__(self):
