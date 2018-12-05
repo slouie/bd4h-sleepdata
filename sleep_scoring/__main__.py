@@ -2,7 +2,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from features.datasets import EpochDataset, RecordSampler, TimeOrderedDataset
+from features.datasets import EpochDataset, RecordSampler, WeightedRecordSampler, TimeOrderedDataset
 from features.edf_loader import PhysiobankEDFLoader
 from features.etl_edf import extract_features
 from helper import spark_helper
@@ -18,7 +18,7 @@ from torch.utils.data import DataLoader
 PATH_OUTPUT = "./output/bestmodels/"
 os.makedirs(PATH_OUTPUT, exist_ok=True)
 
-NUM_TRAINING_EPOCHS = 1
+NUM_TRAINING_EPOCHS = 4
 MODEL_TYPE = 'SimpleCNN'
 BATCH_SIZE = 32
 NUM_WORKERS = 0
@@ -28,8 +28,8 @@ CLASS_MAP = {
     'Sleep stage 1' : 1,
     'Sleep stage 2' : 2,
     'Sleep stage 3' : 3,
-    'Sleep stage 4' : 4,
-    'Sleep stage R' : 5,
+    'Sleep stage 4' : 3, # Map stage 4 to 3
+    'Sleep stage R' : 4,
 }
 
 if __name__ == "__main__":
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     if MODEL_TYPE == 'SimpleCNN' or MODEL_TYPE == 'TsinalisCNN':
         train_dataset = EpochDataset(feature_paths[0:130], CLASS_MAP)
         valid_dataset = EpochDataset(feature_paths[130:], CLASS_MAP)
-        train_sampler = RecordSampler(train_dataset)
+        train_sampler = WeightedRecordSampler(train_dataset)
         valid_sampler = RecordSampler(valid_dataset)
         train_loader = DataLoader(train_dataset, sampler=train_sampler, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
         valid_loader = DataLoader(valid_dataset, sampler=valid_sampler, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
@@ -75,8 +75,8 @@ if __name__ == "__main__":
         #152 total features
         train_dataset = TimeOrderedDataset(feature_paths[0:130], CLASS_MAP)
         valid_dataset = TimeOrderedDataset(feature_paths[130:], CLASS_MAP)
-        # train_sampler = RecordSampler(train_dataset)
-        # valid_sampler = RecordSampler(valid_dataset)
+        train_sampler = WeightedRecordSampler(train_dataset)
+        valid_sampler = RecordSampler(valid_dataset)
         train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
         valid_loader = DataLoader(valid_dataset, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
     # # Train
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     best_model = torch.load(os.path.join(PATH_OUTPUT, '{}.pth'.format(MODEL_TYPE)))
     test_loss, test_accuracy, test_results = evaluate(best_model, device, valid_loader, criterion)
 
-    class_names = ['W', '1', '2', '3', '4', 'R']
+    class_names = ['W', '1', '2', '3', 'R']
     plot_confusion_matrix(test_results, class_names, MODEL_TYPE)
 
     y_true, y_pred = zip(*test_results)
