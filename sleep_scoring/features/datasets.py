@@ -136,7 +136,8 @@ class RNNDataset(EpochDataset):
         rel_idx = epoch_idx - self.epoch_ranges[file_idx][0]
         data = data[1:, rel_idx*EPOCH_LENGTH*100:(rel_idx+1)*EPOCH_LENGTH*100]
 
-        # TODO: don't collapse into 1d
+        data = np.average(data, axis=0)
+        data = np.reshape(data, (1,3000))
         data = np.expand_dims(np.concatenate(data[:]), axis=1)
 
         target = labels[rel_idx]
