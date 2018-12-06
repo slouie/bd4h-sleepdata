@@ -26,7 +26,7 @@ class RecordSampler(Sampler):
 
 class WeightedRecordSampler(Sampler):
     '''
-    Randomly sample in one record before moving onto the next to avoid excessive loading.
+    Sample epochs in each record by weight which is calculated by number of occurrences per class.
     '''
 
     def __init__(self, dataset, replacement=True):
@@ -116,6 +116,32 @@ class EpochDataset(Dataset):
     def __len__(self):
         return self.epoch_ranges[-1][1]
 
+
+class RNNDataset(EpochDataset):
+    
+    def __init__(self, feature_paths, class_map):
+        super(RNNDataset, self).__init__(feature_paths, class_map)
+
+    def __getitem__(self, epoch_idx):
+        # find feature file for this particular epoch
+        file_idx = bisect.bisect_right(self.key_list, epoch_idx) - 1
+        if file_idx not in self.cache:
+            # cache one file at a time
+            f = np.load(self.files[file_idx])
+            self.cache = {file_idx : f['data']}
+        data = self.cache[file_idx]
+        labels = self.labels[file_idx]
+
+        # subtract onset to get epoch idx within this file
+        rel_idx = epoch_idx - self.epoch_ranges[file_idx][0]
+        data = data[1:, rel_idx*EPOCH_LENGTH*100:(rel_idx+1)*EPOCH_LENGTH*100]
+
+        # TODO: don't collapse into 1d
+        data = np.expand_dims(np.concatenate(data[:]), axis=1)
+
+        target = labels[rel_idx]
+        return data.astype(np.float32), target
+    
 
 class TimeOrderedDataset(EpochDataset):
     '''

@@ -2,15 +2,14 @@ import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from features.datasets import EpochDataset, RecordSampler, WeightedRecordSampler, TimeOrderedDataset
+from features.datasets import EpochDataset, RecordSampler, WeightedRecordSampler, TimeOrderedDataset, RNNDataset
 from features.edf_loader import PhysiobankEDFLoader
 from features.etl_edf import extract_features
 from helper import spark_helper
 from helper.plots import plot_learning_curves, plot_confusion_matrix, save_metrics
 from helper.utils import train, evaluate
-from model.cnn import TsinalisCNN
-from model.cnn import SimpleCNN
-from model.rcnn import RCNN
+from model.cnn import TsinalisCNN, SimpleCNN
+from model.rcnn import RCNN, SimpleRNN
 from torch.utils.data import DataLoader
 
 
@@ -18,7 +17,7 @@ from torch.utils.data import DataLoader
 PATH_OUTPUT = "./output/bestmodels/"
 os.makedirs(PATH_OUTPUT, exist_ok=True)
 
-NUM_TRAINING_EPOCHS = 1
+NUM_TRAINING_EPOCHS = 4
 MODEL_TYPE = 'RCNN'
 BATCH_SIZE = 32
 NUM_WORKERS = 0
@@ -46,6 +45,8 @@ if __name__ == "__main__":
 
     if MODEL_TYPE == 'SimpleCNN':
         model = SimpleCNN()
+    elif MODEL_TYPE == 'SimpleRNN':
+        model = SimpleRNN()
     elif MODEL_TYPE == 'TsinalisCNN':
         model = TsinalisCNN()
     elif MODEL_TYPE == 'RCNN':
@@ -64,7 +65,7 @@ if __name__ == "__main__":
     print("Creating dataset ...")
 
     # TODO: split train/valid better
-    if MODEL_TYPE == 'SimpleCNN' or MODEL_TYPE == 'TsinalisCNN':
+    if MODEL_TYPE in ['SimpleCNN', 'TsinalisCNN']:
         train_dataset = EpochDataset(feature_paths[0:130], CLASS_MAP)
         valid_dataset = EpochDataset(feature_paths[130:], CLASS_MAP)
         train_sampler = WeightedRecordSampler(train_dataset)
@@ -72,13 +73,20 @@ if __name__ == "__main__":
         train_loader = DataLoader(train_dataset, sampler=train_sampler, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
         valid_loader = DataLoader(valid_dataset, sampler=valid_sampler, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
     elif MODEL_TYPE == 'RCNN':
-        #152 total features
         train_dataset = TimeOrderedDataset(feature_paths[0:130], CLASS_MAP)
         valid_dataset = TimeOrderedDataset(feature_paths[130:], CLASS_MAP)
         train_sampler = WeightedRecordSampler(train_dataset)
         valid_sampler = RecordSampler(valid_dataset)
+        train_loader = DataLoader(train_dataset, sampler=train_sampler, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
+        valid_loader = DataLoader(valid_dataset, sampler=valid_sampler, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
+    elif MODEL_TYPE == 'SimpleRNN':
+        train_dataset = RNNDataset(feature_paths[0:1], CLASS_MAP)
+        valid_dataset = RNNDataset(feature_paths[1:2], CLASS_MAP)
+        train_sampler = WeightedRecordSampler(train_dataset)
+        valid_sampler = RecordSampler(valid_dataset)
         train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
         valid_loader = DataLoader(valid_dataset, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
+
     # # Train
     print("Training (model={}, workers={}, batch_size={})".format(MODEL_TYPE, NUM_WORKERS, BATCH_SIZE))
 
