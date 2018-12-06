@@ -85,7 +85,7 @@ if __name__ == "__main__":
         train_sampler = WeightedRecordSampler(train_dataset)
         valid_sampler = RecordSampler(valid_dataset)
         train_loader = DataLoader(train_dataset, sampler=train_sampler, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
-        valid_loader = DataLoader(valid_dataset, sampler=train_sampler, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
+        valid_loader = DataLoader(valid_dataset, sampler=valid_sampler, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
 
     # # Train
     print("Training (model={}, workers={}, batch_size={})".format(MODEL_TYPE, NUM_WORKERS, BATCH_SIZE))
