@@ -7,8 +7,8 @@ class SimpleRNN(nn.Module):
 
 	def __init__(self):
 		super(SimpleRNN, self).__init__()
-		self.rnn = nn.GRU(input_size=1, hidden_size=16, batch_first=True)
-		self.fc = nn.Linear(in_features=16, out_features=5)
+		self.rnn = nn.GRU(input_size=1, hidden_size=32, num_layers=2, dropout=0.5, batch_first=True)
+		self.fc = nn.Linear(in_features=32, out_features=5)
 
 	def forward(self, x):
 		x, _ = self.rnn(x)
