@@ -1,77 +1,31 @@
 # bd4h-sleepdata
-Single channel EEG sleep stage scoring using neural networks
 
-https://physionet.org/physiobank/database/sleep-edfx/
-
-https://sleepdata.org/datasets
-
-https://www.edfplus.info/specs/edfplus.html
-
-Proposal: https://docs.google.com/document/d/1lojRzTHTZVBpYQdOLJnpGNFtkVIb-YAWktPaLCkSsmM/edit?usp=sharing
-
-Data: https://docs.google.com/spreadsheets/d/1XhTddfplWuJ1UFNwM6jgS0baN-oSG2-70gTLDw0OkVk/edit?usp=sharing
-
-(?) Physionet --> Load EDFs --> PySpark ETL --> Feature files --> PyTorch
-```
-conda env create -f environment.yml
-export SPARK_HOME=/usr/local/conda3/envs/bd4hproj/lib/python3.6/site-packages/pyspark
-source activate bd4hproj
-python sleep_scoring
-python -m unittest discover
-```
-
-## Draft due 11/11
-### Project execution
-Once your project is approved, you should quickly work on
-getting results and iterate with your sponsors on the progress.
-Iteration  is  the  key.  The  first  iteration  should  be  fast  and
-positive otherwise you are at risk losing momentum from the
-sponsors/project owners (e.g., your boss, clinical experts, your
-partners from another organization). This successful execution
-will  lead  to  long-term  sustainability  of  your  team  and  will
-greatly improve your reputation in the organization, so please
-focus on that.
-
-1)  Gather data that will be used in your project if you haven’t
-already.
-2)  Design the study (e.g., define cohort, target and features;
-carefully   split   data   into   training,   validation   to   avoid
-overfitting)
-3)  Clean and process the data.
-4)  Develop and implement the modeling pipeline.
-5)  Evaluate  the  model  candidates  on  the  performance  met-
-rics.
-6)  Interpret the results from your model (e.g., show predic-
-tive  features,  compare  to  literature  in  terms  of  finding,
-present as cool visualization).
-
-### Deliverables
-- Up to 5-page write-up + 1 page of references
-- Guide
-  - Make sure your write-up cover all aspects described in
-project execution.
-  - Conduct literature search and cite at least 8 papers or
-more that are relevant to the project.
-
-All  the  steps  in  project  execution  should  be  done  by  the
-paper  draft  due  date  and  iterate  at  least  another  time  by  the
-final due day.
+### Requirements
+- Python 3.6
+- PyTorch >= 0.4.1
+- PySpark 2.3.1
 
 ### Running
-- `docker start bigbox`
-- `docker attach bigbox`
-- Set up conda environment using `conda env create -f environment.yml`
-- `source activate bd4hproj`
-- Run __main__.py
+First, set up your Python environment
+```
+conda env create -f environment.yml
+source activate bd4hproj
+```
 
-### Running on eclipse
-- Connect to GT VPN
-- Download private key from bpradhan's email
-- `ssh eclipse`
-- `srun -N 2 hostname`
-- `salloc "--gres=gpu:1"`
-- Run __main__.py
+To test an existing best model,
+```
+python sleep_scoring --best_model [modelName]
+```
 
+To train a model,
+```
+python sleep_scoring --train [modelName]
+```
+*Note: training a model will write a new model file under outputs/bestmodel, potentially overwriting an existing bestmodel*
 
+`modelName` can be one of:
+- SimpleCNN
+- SimpleRNN
+- RCNN
 
-
+To output plots use `--plot` flag.
