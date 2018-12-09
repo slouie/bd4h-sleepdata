@@ -40,38 +40,45 @@ def chunk(signal, sample_frequency):
         yield signal[i:i+num_samples]
 
 
-def extract_features(sc, edf_paths):
+def extract_features(sc, edf_paths, save=True):
+    """
+    Read PSGs at edf_paths and construct feature files for them when save flag is True.
+    If False, just return feature paths for existing feature files.
+    """
     print("Extracting features ...")
     feature_paths = [] 
     if not os.path.exists('./data/features/'):
         os.mkdir('./data/features/')
     for record_idx, (psg_path, hypno_path) in enumerate(edf_paths):
         feature_filepath = './data/features/{}_feature.npz'.format(record_idx)
-        feature_paths.append(feature_filepath)
         if not os.path.exists(feature_filepath):
-            print("Creating feature file {}".format(feature_filepath))
-            epochs = []
-            psg_reader = pyedflib.EdfReader(psg_path)
-            hyp_reader = pyedflib.EdfReader(hypno_path)
+            if save:
+                print("Creating feature file {}".format(feature_filepath))
+                epochs = []
+                psg_reader = pyedflib.EdfReader(psg_path)
+                hyp_reader = pyedflib.EdfReader(hypno_path)
 
-            # Load expert annotations
-            # There's expected to be more annotations by epoch than number of epochs for some recordings
-            # It's always either an extended W or ? sleep stage at the end of the file ...
-            annotations = hyp_reader.readAnnotations()
-            annotations_by_epoch = []
-            for n in np.arange(hyp_reader.annotations_in_file):
-                annotations_by_epoch.extend([annotations[2][n]] * int(annotations[1][n]/EPOCH_LENGTH))
+                # Load expert annotations
+                # There's expected to be more annotations by epoch than number of epochs for some recordings
+                # It's always either an extended W or ? sleep stage at the end of the file ...
+                annotations = hyp_reader.readAnnotations()
+                annotations_by_epoch = []
+                for n in np.arange(hyp_reader.annotations_in_file):
+                    annotations_by_epoch.extend([annotations[2][n]] * int(annotations[1][n]/EPOCH_LENGTH))
 
-            # Pivot and construct epochs with their annotations
-            for channel in range(psg_reader.signals_in_file - 1):
-                buf = psg_reader.readSignal(channel)
-                sample_frequency = psg_reader.getSampleFrequency(channel)
-                for epoch_id, epoch_signal in enumerate(chunk(buf, sample_frequency)):
-                    if epoch_id >= len(epochs):
-                        epochs.append(Epoch(epoch_id, annotations_by_epoch[epoch_id]))
-                    epochs[epoch_id].add_channel(channel, epoch_signal, sample_frequency)
+                # Pivot and construct epochs with their annotations
+                for channel in range(psg_reader.signals_in_file - 1):
+                    buf = psg_reader.readSignal(channel)
+                    sample_frequency = psg_reader.getSampleFrequency(channel)
+                    for epoch_id, epoch_signal in enumerate(chunk(buf, sample_frequency)):
+                        if epoch_id >= len(epochs):
+                            epochs.append(Epoch(epoch_id, annotations_by_epoch[epoch_id]))
+                        epochs[epoch_id].add_channel(channel, epoch_signal, sample_frequency)
 
-            rdd = sc.parallelize(epochs)
-            FeatureConstruction.construct(sc, rdd, feature_filepath)
+                rdd = sc.parallelize(epochs)
+                FeatureConstruction.construct(sc, rdd, feature_filepath)
+            else:
+                continue
+        feature_paths.append(feature_filepath)
     return feature_paths
         

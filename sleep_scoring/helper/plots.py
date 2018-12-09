@@ -16,17 +16,23 @@ def classification_metrics(Y_pred, Y_true):
 	return acc, precision, recall, f1
 
 
-def save_metrics(model_type, Y_pred, Y_true):
-	out_dir = os.path.join(PLOT_PATH, model_type)
-	if not os.path.exists(out_dir):
-		os.mkdir(out_dir)
-	with open(os.path.join(out_dir, 'metrics.txt'), 'w') as f:
-		f.write(("Model type: {}\n".format(model_type)))
-		acc, precision, recall, f1score = classification_metrics(Y_pred,Y_true)
-		f.write(("Accuracy: {}\n".format(str(acc))))
-		f.write(("Precision: {}\n".format(str(precision))))
-		f.write(("Recall: {}\n".format(str(recall))))
-		f.write(("F1-score: {}\n".format(str(f1score))))
+def print_metrics(model_type, Y_pred, Y_true, save=False):
+	acc, precision, recall, f1score = classification_metrics(Y_pred,Y_true)
+	print(("Accuracy: {}".format(str(acc))))
+	print(("Precision: {}".format(str(precision))))
+	print(("Recall: {}".format(str(recall))))
+	print(("F1-score: {}".format(str(f1score))))
+
+	if save:
+		out_dir = os.path.join(PLOT_PATH, model_type)
+		if not os.path.exists(out_dir):
+			os.mkdir(out_dir)
+		with open(os.path.join(out_dir, 'metrics.txt'), 'w') as f:
+			f.write(("Model type: {}\n".format(model_type)))
+			f.write(("Accuracy: {}\n".format(str(acc))))
+			f.write(("Precision: {}\n".format(str(precision))))
+			f.write(("Recall: {}\n".format(str(recall))))
+			f.write(("F1-score: {}\n".format(str(f1score))))
 
 
 def plot_learning_curves(train_losses, valid_losses, train_accuracies, valid_accuracies, model_type):
@@ -80,6 +86,3 @@ def plot_confusion_matrix(results, class_names, model_type):
 		os.mkdir(out_dir)
 
 	plt.savefig(os.path.join(out_dir, 'confusion_matrix.png'))
-
-
-# precision/sensitivity/F1, cohen's kappa, recall
