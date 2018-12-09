@@ -18,7 +18,7 @@ PATH_OUTPUT = "./output/bestmodels/"
 os.makedirs(PATH_OUTPUT, exist_ok=True)
 
 NUM_TRAINING_EPOCHS = 4
-MODEL_TYPE = 'SimpleRNN'
+MODEL_TYPE = 'RCNN'
 BATCH_SIZE = 32
 NUM_WORKERS = 0
 
@@ -73,8 +73,8 @@ if __name__ == "__main__":
         train_loader = DataLoader(train_dataset, sampler=train_sampler, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
         valid_loader = DataLoader(valid_dataset, sampler=valid_sampler, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
     elif MODEL_TYPE == 'RCNN':
-        train_dataset = TimeOrderedDataset(feature_paths[0:130], CLASS_MAP)
-        valid_dataset = TimeOrderedDataset(feature_paths[130:], CLASS_MAP)
+        train_dataset = EpochDataset(feature_paths[0:130], CLASS_MAP)
+        valid_dataset = EpochDataset(feature_paths[130:], CLASS_MAP)
         train_sampler = WeightedRecordSampler(train_dataset)
         valid_sampler = RecordSampler(valid_dataset)
         train_loader = DataLoader(train_dataset, sampler=train_sampler, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
