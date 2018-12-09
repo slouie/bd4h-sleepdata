@@ -21,7 +21,7 @@ To train a model,
 ```
 python sleep_scoring --train [modelName]
 ```
-*Note: training a model will write a new model file under outputs/bestmodel, potentially overwriting an existing bestmodel*
+*Note: training a model will write a new model file under output/bestmodels/, potentially overwriting an existing bestmodel*
 
 `modelName` can be one of:
 - SimpleCNN
