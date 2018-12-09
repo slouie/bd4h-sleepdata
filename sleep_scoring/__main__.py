@@ -12,12 +12,15 @@ from model.cnn import TsinalisCNN, SimpleCNN
 from model.rcnn import RCNN, SimpleRNN
 from torch.utils.data import DataLoader
 
+torch.manual_seed(777)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed(777)
 
 # Path for saving model
 PATH_OUTPUT = "./output/bestmodels/"
 os.makedirs(PATH_OUTPUT, exist_ok=True)
 
-NUM_TRAINING_EPOCHS = 4
+NUM_TRAINING_EPOCHS = 10
 MODEL_TYPE = 'RCNN'
 BATCH_SIZE = 32
 NUM_WORKERS = 0
@@ -43,6 +46,8 @@ if __name__ == "__main__":
 
     feature_paths = extract_features(sc, records)
 
+    lr = 0.001
+
     if MODEL_TYPE == 'SimpleCNN':
         model = SimpleCNN()
     elif MODEL_TYPE == 'SimpleRNN':
@@ -51,12 +56,13 @@ if __name__ == "__main__":
         model = TsinalisCNN()
     elif MODEL_TYPE == 'RCNN':
         model = RCNN()
+        lr = 0.0001
     else:
         raise AssertionError('Model type does not exist')
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters())
+    optimizer = optim.Adam(model.parameters(), lr=lr)
 
     model.to(device)
     criterion.to(device)
