@@ -22,8 +22,8 @@ if torch.cuda.is_available():
 PATH_OUTPUT = "./output/bestmodels/"
 os.makedirs(PATH_OUTPUT, exist_ok=True)
 
-NUM_TRAINING_EPOCHS = 1
-MODEL_TYPE = 'SimpleRNN'
+NUM_TRAINING_EPOCHS = 2
+MODEL_TYPE = 'SimpleCNN'
 BATCH_SIZE = 32
 NUM_WORKERS = 0
 
