@@ -26,3 +26,10 @@ python sleep_scoring --train [modelName]
 # Example uses
 - python sleep_scoring --best_model SimpleCNN --plot
 - python sleep_scoring --train SimpleCNN --plot
+
+
+Notes
+- Occasionally there may be an unexplainable CUDNN_STATUS_EXECUTION_FAILED error when using CUDA that we can't
+seem to reproduce. It is mentioned here: https://discuss.pytorch.org/t/cudnn-status-execution-failed/4441 We just
+rerun in those situations.
+
